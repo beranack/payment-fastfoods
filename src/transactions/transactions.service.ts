@@ -13,7 +13,10 @@ export class TransactionsService {
   ) {}
   private logger = new Logger('TransactionService');
 
-  async balanceCheckById(userId: GetBalanceDto): Promise<{ balance: string }> {
+  async balanceCheckById(
+    inputUserId: GetBalanceDto,
+  ): Promise<{ balance: string }> {
+    const { userId } = inputUserId;
     const transaction = await this.transactionsRepository
       .createQueryBuilder('transaction')
       .andWhere(
@@ -24,8 +27,8 @@ export class TransactionsService {
       )
       .select('SUM(transaction.amount)')
       .getRawMany();
-
-    const balance = transaction[0].sum;
+    const balance = transaction[0].sum === null ? '0.00' : transaction[0].sum
+    
     return { balance };
   }
 
@@ -40,9 +43,12 @@ export class TransactionsService {
       userId,
       description,
     });
-    if (Number(this.balanceCheckById({userId}) + amount) < 0)
-      throw new Error('Your Balance is Not Enough(IMPOsiblee)');
+    const balanceObj = await this.balanceCheckById({ userId })
 
+    if (Number(balanceObj.balance) + Number(amount) < 0)
+      this.logger.error('Your Balance is Not Enough(IMPOsiblee)');
+      return ;
+      
     await this.transactionsRepository.save(transaction);
     return transaction;
   }

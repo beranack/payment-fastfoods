@@ -6,19 +6,17 @@ import { TransactionsService } from './transactions.service';
 
 @Controller('transactions')
 export class TransactionsController {
-    constructor(
-    private transactionService: TransactionsService
-    ){}
-    
-    
-    @Get('/:id')
-    async balanceCheckById(@Param() userId:GetBalanceDto):Promise<{balance:string}>{
-      return this.transactionService.balanceCheckById(userId);  
-    }
+  constructor(private transactionService: TransactionsService) {}
 
-    @Post()
-    async transaction(@Body() data: TransactionCreateDto): Promise<Transaction> {
-        return this.transactionService.transaction(data);
-    }
+  @Get('/:userId')
+  async balanceCheckById(
+    @Param() userId: GetBalanceDto,
+  ): Promise<{ balance: string }> {
+    return this.transactionService.balanceCheckById(userId);
+  }
 
+  @Post()
+  async transaction(@Body() data: TransactionCreateDto): Promise<Transaction> {
+    return this.transactionService.transaction(data);
+  }
 }
